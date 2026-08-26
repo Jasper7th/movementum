@@ -19,6 +19,7 @@ try {
     'src/config/recommendations.ts', 'src/domain/recommendations.ts',
     'src/application/appState.ts',
     'src/domain/auth.ts', 'src/domain/localOwnership.ts', 'src/domain/social.ts', 'src/navigation/tabs.ts',
+    'src/config/developerAccess.ts',
     '--outDir', '.logic-check', '--module', 'commonjs',
     '--target', 'es2022', '--moduleResolution', 'node', '--skipLibCheck',
   ], { cwd: root, stdio: 'inherit' });
@@ -40,6 +41,7 @@ try {
   const auth = require(path.join(output, 'domain', 'auth.js'));
   const ownership = require(path.join(output, 'domain', 'localOwnership.js'));
   const social = require(path.join(output, 'domain', 'social.js'));
+  const developerAccess = require(path.join(output, 'config', 'developerAccess.js'));
   const { appTabs } = require(path.join(output, 'navigation', 'tabs.js'));
   const today = '2026-08-23';
   const preferences = { primaryGoal: 'feel-healthier', workoutDaysPerWeek: 3, activeRecoveryDaysPerWeek: 2, activityAccess: ['bodyweight'], startingActivityLevel: 'somewhat-active', onboardingCompleted: true };
@@ -128,8 +130,20 @@ try {
   assert.equal(finishedTutorial.hasCompletedIntroTutorial, true);
   assert.equal(appState.completeIntroTutorial(finishedTutorial), finishedTutorial);
   assert.match(auth.validateSignUp('person@example.com', 'secret1', 'different'), /do not match/);
-  assert.match(auth.getFriendlyAuthError(new Error('Network request failed')), /internet/);
-  assert.match(auth.getFriendlyAuthError(new Error('Invalid login credentials')), /email or password/);
+  assert.match(auth.getFriendlyAuthError(new Error('Network request failed')), /Couldn’t connect/);
+  assert.match(auth.getFriendlyAuthError(new Error('Invalid login credentials')), /Email or password is incorrect/);
+  const ownerId = '11111111-1111-4111-8111-111111111111';
+  const otherId = '22222222-2222-4222-8222-222222222222';
+  assert.equal(developerAccess.isDeveloperUser(ownerId, ownerId), true);
+  assert.equal(developerAccess.isDeveloperUser(otherId, ownerId), false);
+  assert.equal(developerAccess.isDeveloperUser(ownerId, undefined), false);
+  assert.equal(developerAccess.isDeveloperUser(null, ownerId), false);
+  assert.equal(developerAccess.isDeveloperUser(ownerId, `${ownerId},not-a-uuid`), false);
+  assert.equal(developerAccess.isDeveloperUser(otherId, `${ownerId}, ${otherId}`), true);
+  const profileSource = fs.readFileSync(path.join(root, 'src', 'screens', 'ProfileScreen.tsx'), 'utf8');
+  assert.match(profileSource, /\{showDevelopment && <View style=\{styles\.developer\}>/);
+  assert(profileSource.indexOf('{showDevelopment &&') < profileSource.indexOf('<View style={styles.logoutSection}>'));
+  assert.match(profileSource, /confirmLogout/);
   const ownedA = ownership.claimLocalState(state({ ownerUserId: 'user-a' }), 'user-a', () => state());
   assert.equal(ownedA.preferences.primaryGoal, preferences.primaryGoal);
   const cleanB = ownership.claimLocalState(ownedA, 'user-b', () => state({ preferences: null }));
@@ -164,6 +178,7 @@ try {
   assert.equal(social.isSnapshotCurrent(snapshot, '2026-08-24'), false);
   assert.equal(social.getFriendTodayLabel(snapshot, '2026-08-24'), 'No current update today');
   assert.match(social.getSocialErrorMessage({ code: '23505', message: 'duplicate key' }), /already taken/);
+  assert.equal(social.getSocialErrorMessage({ message: 'permission denied' }, 'Couldn’t send the request. Try again.'), 'Couldn’t send the request. Try again.');
   const friendsSql = fs.readFileSync(path.join(root, 'supabase', 'migrations', '202608260001_friends_v1.sql'), 'utf8');
   assert.match(friendsSql, /enable row level security/g);
   assert.match(friendsSql, /friendships_unique_pair unique/);

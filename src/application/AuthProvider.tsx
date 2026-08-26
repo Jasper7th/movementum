@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { active = false; listener.subscription.unsubscribe(); appListener.remove(); linkListener.remove(); };
   }, []);
 
-  const unavailable = (): AuthResult => ({ ok: false, error: 'Supabase is not configured. Add the EXPO_PUBLIC_SUPABASE values and restart Movementum.' });
+  const unavailable = (): AuthResult => ({ ok: false, error: 'This build cannot connect right now. Please contact the beta organizer.' });
   const value: AuthContextValue = {
     session, user: session?.user ?? null, hydrated, recoveringPassword, configured: isSupabaseConfigured,
     signUp: async (email, password) => {

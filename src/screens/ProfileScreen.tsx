@@ -4,6 +4,7 @@ import { useAppState } from '../application/AppStateProvider';
 import { useAuth } from '../application/AuthProvider';
 import { SecondaryActionRow } from '../components/SecondaryActionRow';
 import { notificationConfig } from '../config/notifications';
+import { isDeveloperUser } from '../config/developerAccess';
 import { activityAccessLabels, activityLevelLabels, primaryGoalLabels } from '../domain/preferences';
 import { getLevelProgress } from '../domain/levels';
 import { getLifetimeStats } from '../domain/lifetime';
@@ -25,6 +26,7 @@ export function ProfileScreen({ onOpenProgress, onOpenTutorial }: { onOpenProgre
   const lifetime = getLifetimeStats(state.progress, state.daily);
   const level = getLevelProgress(lifetime.lifetimeXp);
   const notificationPreferences = state.notificationPreferences;
+  const showDevelopment = isDeveloperUser(user?.id);
 
   useEffect(() => {
     let active = true;
@@ -99,7 +101,7 @@ export function ProfileScreen({ onOpenProgress, onOpenTutorial }: { onOpenProgre
         {notificationPermission === 'denied' && <Text style={styles.permissionNote}>Notifications are disabled in iOS Settings.</Text>}
         {notificationPermission === 'unavailable' && <Text style={styles.permissionNote}>Notifications are unavailable in this environment.</Text>}
       </View>
-      <View style={styles.developer}><Text style={styles.developerTitle}>Development</Text><Text style={styles.developerHint}>Test local delivery or clear this device’s prototype data.</Text><View style={styles.developerActions}><Pressable accessibilityRole="button" onPress={() => { void handleTestNotification(); }} style={({ pressed }) => [styles.testButton, pressed && styles.pressed]}><Text style={styles.testText}>Schedule test in 10 seconds</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmReset} style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}><Text style={styles.resetText}>Reset local data</Text></Pressable></View></View>
+      {showDevelopment && <View style={styles.developer}><Text style={styles.developerTitle}>Development</Text><Text style={styles.developerHint}>Test local delivery or clear this device’s prototype data.</Text><View style={styles.developerActions}><Pressable accessibilityRole="button" onPress={() => { void handleTestNotification(); }} style={({ pressed }) => [styles.testButton, pressed && styles.pressed]}><Text style={styles.testText}>Schedule test in 10 seconds</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmReset} style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}><Text style={styles.resetText}>Reset local data</Text></Pressable></View></View>}
       <View style={styles.logoutSection}><Pressable accessibilityRole="button" onPress={confirmLogout} style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}><Text style={styles.logoutText}>Log out</Text></Pressable></View>
     </ScrollView>
     </SafeAreaView>

@@ -27,8 +27,8 @@ export function validateSignUp(email: string, password: string, confirmation: st
 
 export function getFriendlyAuthError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '');
-  if (/network|fetch|offline/i.test(message)) return 'Movementum could not connect. Check your internet connection and try again.';
-  if (/invalid login|invalid.*credentials/i.test(message)) return 'That email or password is not correct.';
+  if (/network|fetch|offline/i.test(message)) return 'Couldn’t connect. Check your connection and try again.';
+  if (/invalid login|invalid.*credentials/i.test(message)) return 'Email or password is incorrect.';
   if (/already registered|already exists/i.test(message)) return 'An account already exists for that email. Try logging in instead.';
   if (/rate limit|too many/i.test(message)) return 'Too many attempts. Please wait a moment and try again.';
   return 'Something went wrong. Please try again.';

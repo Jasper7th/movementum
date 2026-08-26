@@ -153,6 +153,8 @@ Tutorial completion is persisted separately from authentication and onboarding a
 
 Profile includes **How Movementum works**, which reuses the same three screens in revisit mode. Revisit mode ends with **Done**, returns to Profile, and does not rewrite onboarding or tutorial completion. Full local-data reset leaves Supabase authentication intact but recreates the dataset with onboarding and tutorial incomplete. The bottom tabs are hidden during both first-run and revisit presentations.
 
+Profile's Development section is visible only when the authenticated Supabase user UUID appears in the comma-separated `EXPO_PUBLIC_DEVELOPER_USER_IDS` client allowlist. Missing, empty, or malformed configuration fails closed and hides the section. This is a beta UI safeguard rather than an authorization boundary; server-side access continues to rely on Supabase Row Level Security. Log out remains available to every authenticated user as the final Profile action.
+
 ## Friends V1
 
 Friends adds a fourth authenticated bottom tab—Today, Progress, Friends, Profile—to make existing Movementum effort lightly social without introducing a feed. Authenticated users may create a separate public social profile with a normalized, case-insensitively unique username and a non-unique display name. Usernames are lowercase, 3–20 characters, and limited to letters, numbers, and underscores; display names are trimmed and 1–40 characters. Email is auth identity only and is never shown publicly. Existing accounts are not forced through setup: Today, Progress, and Profile keep working, while Friends prompts for setup if no social profile exists. Profile also supports creating or editing that identity.

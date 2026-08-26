@@ -6,7 +6,7 @@ export interface SocialResult<T> { data?: T; error?: string }
 export interface SocialSearchResult { profile: SocialProfile; friendship?: Friendship }
 
 type Row = Record<string, unknown>;
-const unavailable = <T>(): SocialResult<T> => ({ error: 'Friends are unavailable until Supabase is configured.' });
+const unavailable = <T>(): SocialResult<T> => ({ error: 'Friends are unavailable right now. Please try again later.' });
 const profileFromRow = (row: Row): SocialProfile => ({ userId: String(row.user_id), username: String(row.username), displayName: String(row.display_name), createdAt: String(row.created_at), updatedAt: String(row.updated_at) });
 const friendshipFromRow = (row: Row): Friendship => ({ id: String(row.id), requesterId: String(row.requester_id), addresseeId: String(row.addressee_id), status: row.status as Friendship['status'], createdAt: String(row.created_at), updatedAt: String(row.updated_at) });
 const progressFromRow = (row: Row): SocialProgressSnapshot => ({ userId: String(row.user_id), level: Number(row.level), currentStreak: Number(row.current_streak), todayStatus: row.today_status as SocialProgressSnapshot['todayStatus'], todayPerfect: Boolean(row.today_perfect), todayXp: Number(row.today_xp), dailyTarget: Number(row.daily_target), snapshotDate: String(row.snapshot_date), updatedAt: String(row.updated_at) });
@@ -80,16 +80,16 @@ export const socialService = {
     return { data: (profilesQuery.data as Row[]).map(profileFromRow).map((profile) => ({ profile, friendship: byOtherId.get(profile.userId) })) };
   },
 
-  async sendRequest(targetUserId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('send_friend_request', { target_user_id: targetUserId }); },
-  async acceptRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('accept_friend_request', { friendship_id: friendshipId }); },
-  async declineRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('decline_friend_request', { friendship_id: friendshipId }); },
-  async cancelRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('cancel_friend_request', { friendship_id: friendshipId }); },
-  async removeFriend(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('remove_friend', { friendship_id: friendshipId }); },
+  async sendRequest(targetUserId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('send_friend_request', { target_user_id: targetUserId }, 'Couldn’t send the request. Try again.'); },
+  async acceptRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('accept_friend_request', { friendship_id: friendshipId }, 'Couldn’t accept the request. Try again.'); },
+  async declineRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('decline_friend_request', { friendship_id: friendshipId }, 'Couldn’t decline the request. Try again.'); },
+  async cancelRequest(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('cancel_friend_request', { friendship_id: friendshipId }, 'Couldn’t cancel the request. Try again.'); },
+  async removeFriend(friendshipId: string): Promise<SocialResult<void>> { return this.callRelationshipRpc('remove_friend', { friendship_id: friendshipId }, 'Couldn’t remove this friend. Try again.'); },
 
-  async callRelationshipRpc(name: string, args: Record<string, string>): Promise<SocialResult<void>> {
+  async callRelationshipRpc(name: string, args: Record<string, string>, fallback: string): Promise<SocialResult<void>> {
     if (!supabase) return unavailable();
     const { error } = await supabase.rpc(name, args);
-    return error ? { error: getSocialErrorMessage(error) } : { data: undefined };
+    return error ? { error: getSocialErrorMessage(error, fallback) } : { data: undefined };
   },
 
   async upsertProgress(userId: string, input: SocialProgressInput): Promise<SocialResult<void>> {

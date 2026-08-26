@@ -90,10 +90,10 @@ export function getFriendTodayLabel(snapshot: SocialProgressSnapshot, today = to
   return snapshot.todayPerfect ? `${primary[snapshot.todayStatus]} · Perfect` : primary[snapshot.todayStatus];
 }
 
-export function getSocialErrorMessage(error: unknown): string {
+export function getSocialErrorMessage(error: unknown, fallback = 'Friends could not be updated. Please try again.'): string {
   const candidate = error as { code?: string; message?: string } | null;
   if (candidate?.code === '23505' || /duplicate.*username|unique.*username/i.test(candidate?.message ?? '')) return 'That username is already taken.';
   if (/network|fetch|offline/i.test(candidate?.message ?? '')) return 'Friends are unavailable offline. Try again when you’re connected.';
   if (/cannot friend yourself/i.test(candidate?.message ?? '')) return 'You cannot send a friend request to yourself.';
-  return 'Friends could not be updated. Please try again.';
+  return fallback;
 }

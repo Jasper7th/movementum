@@ -63,6 +63,23 @@ npm run test:logic
 
 `npm run ios` requires macOS and Xcode for the iOS Simulator. On Windows, EAS Build can produce the signed iOS development build in the cloud without generating native folders in this repository. The `development` profile in `eas.json` targets registered physical devices with internal distribution.
 
+## Friends-and-family TestFlight beta
+
+Production builds use the EAS `production` environment, remote app-version management, and automatic iOS build-number increments. Configure the public client values before building:
+
+```powershell
+npx eas-cli@latest login
+npx eas-cli@latest env:create --environment production --name EXPO_PUBLIC_SUPABASE_URL --value "https://YOUR_PROJECT.supabase.co" --visibility plaintext
+npx eas-cli@latest env:create --environment production --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "YOUR_PUBLIC_ANON_OR_PUBLISHABLE_KEY" --visibility plaintext
+npx eas-cli@latest env:create --environment production --name EXPO_PUBLIC_DEVELOPER_USER_IDS --value "YOUR_SUPABASE_USER_UUID" --visibility plaintext
+npx eas-cli@latest build --platform ios --profile production
+npx eas-cli@latest submit --platform ios --latest
+```
+
+Find the developer UUID in **Supabase Dashboard → Authentication → Users**, open your own account, and copy its User UID. The allowlist is a comma-separated list of UUIDs; a missing or malformed value hides all developer controls. Do not use email addresses and never add a service-role key. Regular beta users cannot see **Profile → Development**, while allowlisted users retain the test-notification and local-data reset controls.
+
+The production build contains its JavaScript and assets and runs without Metro. Verify that `momentum://auth/callback` and `momentum://auth/reset-password` remain in Supabase **Authentication → URL Configuration** before testing account confirmation and password reset from TestFlight. Fitness history remains local to each installation, so deleting the app or moving to another device does not restore that history in this beta.
+
 ## Structure
 
 ```text
