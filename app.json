@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Movementum",
+    "slug": "momentum",
+    "scheme": "momentum",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-notifications",
+      "expo-font"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.jaspersmith.momentum",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "38fb7aae-b2b3-4cfe-8d78-25b5a010faaa"
+      }
+    },
+    "owner": "jasper7th"
+  }
+}

@@ -1,0 +1,27 @@
+import { useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useAuth } from '../application/AuthProvider';
+import type { SocialProfile } from '../domain/social';
+import { normalizeUsername, validateDisplayName, validateUsername } from '../domain/social';
+import { socialService } from '../services/socialService';
+import { colors, controlHeights, layout, radii, spacing, typography } from '../ui/theme';
+
+export function SocialProfileEditor({ initialProfile, onCancel, onSaved }: { initialProfile?: SocialProfile | null; onCancel?: () => void; onSaved: (profile: SocialProfile) => void }) {
+  const { user } = useAuth();
+  const [username, setUsername] = useState(initialProfile?.username ?? '');
+  const [displayName, setDisplayName] = useState(initialProfile?.displayName ?? '');
+  const [error, setError] = useState<string>();
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    const validation = validateUsername(username) ?? validateDisplayName(displayName);
+    if (validation) { setError(validation); return; }
+    if (!user) return;
+    setSaving(true); setError(undefined);
+    const result = await socialService.saveProfile(user.id, username, displayName);
+    setSaving(false);
+    if (result.error || !result.data) setError(result.error ?? 'Social profile could not be saved.'); else onSaved(result.data);
+  };
+  return <SafeAreaView style={styles.safe}><KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.safe}><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><View>{onCancel && <Pressable accessibilityRole="button" onPress={onCancel} style={styles.back}><Text style={styles.backText}>‹ Back</Text></Pressable>}<Text style={styles.eyebrow}>SOCIAL PROFILE</Text><Text style={styles.title}>{initialProfile ? 'Edit social profile' : 'Pick your Movementum username'}</Text><Text style={styles.subtitle}>Friends use this identity to find you. Your email stays private.</Text></View><View style={styles.card}><View style={styles.field}><Text style={styles.label}>Username</Text><View style={styles.usernameField}><Text style={styles.at}>@</Text><TextInput autoCapitalize="none" autoCorrect={false} maxLength={21} onChangeText={setUsername} placeholder="movementum_user" placeholderTextColor={colors.textMuted} returnKeyType="next" style={styles.usernameInput} value={username} /></View><Text style={styles.helper}>3–20 letters, numbers, or underscores</Text></View><View style={styles.field}><Text style={styles.label}>Display name</Text><TextInput autoCapitalize="words" maxLength={40} onChangeText={setDisplayName} placeholder="Your name" placeholderTextColor={colors.textMuted} returnKeyType="done" style={styles.input} value={displayName} /></View></View>{error && <Text accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>}<Pressable accessibilityRole="button" disabled={saving} onPress={() => void save()} style={({ pressed }) => [styles.primary, (pressed || saving) && styles.pressed]}>{saving ? <ActivityIndicator color={colors.surface} /> : <Text style={styles.primaryText}>{initialProfile ? 'Save changes' : 'Continue'}</Text>}</Pressable>{username.length > 0 && <Text style={styles.preview}>Your username will be @{normalizeUsername(username)}</Text>}</ScrollView></KeyboardAvoidingView></SafeAreaView>;
+}
+
+const styles = StyleSheet.create({ safe: { backgroundColor: colors.background, flex: 1 }, content: { flexGrow: 1, paddingBottom: 36, paddingHorizontal: layout.pageHorizontal, paddingTop: 20 }, back: { alignSelf: 'flex-start', justifyContent: 'center', minHeight: 40, marginBottom: spacing.md }, backText: { color: colors.accent, fontSize: 15, fontWeight: '800' }, eyebrow: { color: colors.accent, ...typography.pageEyebrow }, title: { color: colors.text, fontSize: 30, fontWeight: '900', letterSpacing: -0.6, lineHeight: 36, marginTop: spacing.sm }, subtitle: { color: colors.textMuted, marginTop: spacing.sm, ...typography.body }, card: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.medium, borderWidth: 1, gap: spacing.lg, marginTop: spacing.xl, padding: spacing.md }, field: { gap: 7 }, label: { color: colors.text, fontSize: 13, fontWeight: '800' }, usernameField: { alignItems: 'center', backgroundColor: colors.background, borderColor: colors.border, borderRadius: radii.small, borderWidth: 1, flexDirection: 'row', minHeight: 52, paddingHorizontal: 14 }, at: { color: colors.accent, fontSize: 17, fontWeight: '800' }, usernameInput: { color: colors.text, flex: 1, fontSize: 16, minHeight: 50, paddingHorizontal: 4 }, input: { backgroundColor: colors.background, borderColor: colors.border, borderRadius: radii.small, borderWidth: 1, color: colors.text, fontSize: 16, minHeight: 52, paddingHorizontal: 14 }, helper: { color: colors.textMuted, ...typography.helper }, error: { color: '#9B4339', fontSize: 13, lineHeight: 19, marginTop: spacing.md }, primary: { alignItems: 'center', backgroundColor: colors.accent, borderRadius: radii.small, justifyContent: 'center', minHeight: controlHeights.primary, marginTop: spacing.lg }, primaryText: { color: colors.surface, fontSize: 16, fontWeight: '800' }, preview: { color: colors.textMuted, marginTop: spacing.sm, textAlign: 'center', ...typography.helper }, pressed: { opacity: 0.65 } });
