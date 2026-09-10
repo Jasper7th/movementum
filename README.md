@@ -1,8 +1,35 @@
 # Movementum
 
-An iOS-first fitness habit app built with React Native, Expo SDK 54, and TypeScript. Development builds are the preferred physical-device workflow; Expo Go remains available for JavaScript-only checks.
+Movementum is an iOS fitness application designed to make daily activity more consistent through personalized recommendations, streaks, achievements, progress tracking, and social features.
 
-The installed display name is **Movementum**. Compatibility identifiers remain unchanged: the Expo slug/package, local storage namespace, `com.jaspersmith.momentum` bundle identifier, and `momentum://` auth callback scheme still use `momentum`. Because the Expo display name is native configuration, an already-installed development client needs one new EAS development build to show Movementum beneath the app icon.
+Built with React Native, TypeScript, Supabase, and Expo/EAS.
+
+## Screenshots
+
+<p align="center">
+  <img src="./screenshots/today.png" width="220" />
+  <img src="./screenshots/progress.png" width="220" />
+  <img src="./screenshots/friends.png" width="220" />
+</p>
+
+## Features
+
+- Personalized daily workout and recovery recommendations
+- XP, levels, streaks, and achievement tracking
+- User authentication and onboarding
+- Persistent user profiles and application state
+- Friend requests and social connections
+- Progress and activity tracking
+- Physical iOS device testing
+- EAS development and production builds
+
+## Engineering Highlights
+
+- Designed stateful application workflows for activity completion, XP progression, streaks, and achievements
+- Integrated Supabase authentication and social data with Row Level Security
+- Built reusable React Native components and separated application logic into domain, service, storage, and UI layers
+- Debugged authentication, onboarding, persistence, and device-specific issues during physical iOS testing
+- Configured iOS provisioning and TestFlight-ready production builds using Expo Application Services
 
 ## Windows setup
 
