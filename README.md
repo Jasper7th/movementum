@@ -7,19 +7,19 @@ Built with React Native, TypeScript, Supabase, and Expo/EAS.
 ## Screenshots
 
 <p align="center">
-  <img src="./screenshots/today.png" width="220" />
-  <img src="./screenshots/progress.png" width="220" />
+  <img src="./screenshots/today.PNG" width="220" />
+  <img src="./screenshots/progress.PNG" width="220" />
 </p>
 
 <p align="center">
-  <img src="./screenshots/friends.png" width="220" />
-  <img src="./screenshots/profile.png" width="220" />
+  <img src="./screenshots/friends.PNG" width="220" />
+  <img src="./screenshots/profile.PNG" width="220" />
 </p>
 
 <p align="center">
-  <img src="./screenshots/today.png" width="220" />
-  <img src="./screenshots/progress.png" width="220" />
-  <img src="./screenshots/friends.png" width="220" />
+  <img src="./screenshots/today.PNG" width="220" />
+  <img src="./screenshots/progress.PNG" width="220" />
+  <img src="./screenshots/friends.PNG" width="220" />
 </p>
 
 ## Features
